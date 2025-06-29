@@ -18,15 +18,15 @@ func NewAnnotator() *Annotator {
 }
 
 func (a *Annotator) register(registered map[string]CustomAnnotation, cAnn CustomAnnotation) error {
-	if _, exists := registered[cAnn.Tag()]; exists {
-	return fmt.Errorf("error registering annotation: annoatation with tag '%s' already exists", cAnn.Tag())
+	if _, exists := registered[cAnn.Metadata().Tag]; exists {
+	return fmt.Errorf("error registering annotation: annoatation with tag '%s' already exists", cAnn.Metadata().Tag)
  }
- registered[cAnn.Tag()] = cAnn
+ registered[cAnn.Metadata().Tag] = cAnn
  return nil
 }
 
 func (a *Annotator) Register(cAnn CustomAnnotation) error {
-	if cAnn.KeyValue() {
+	if cAnn.Metadata().KeyValue {
 		return a.register(a.kvAnnotations, cAnn)
 	}
 	return a.register(a.singleAnnotations, cAnn)

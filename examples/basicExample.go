@@ -7,16 +7,12 @@ import (
 
 type MyCustomAnnotation struct {}
 
-func (mca *MyCustomAnnotation) Tag() string {
-	return "mca"
-}
-
-func (mca *MyCustomAnnotation) Enabled() bool {
-	return true
-}
-
-func (mca *MyCustomAnnotation) KeyValue() bool {
-	return false
+func (mca *MyCustomAnnotation) Metadata() annotate.AnnotationMetadata {
+	return annotate.AnnotationMetadata {
+		Tag: "mca",
+		KeyValue: false,
+		Enabled: true,
+	}
 }
 
 func (mca* MyCustomAnnotation) Apply(value reflect.Value) error {
