@@ -6,34 +6,31 @@ import (
 )
 
 type Annotator struct {
-	singleAnnotations map[string]CustomAnnotation
-	kvAnnotations map[string]CustomAnnotation
+	name string
+	annotations *registry[CustomAnnotation]
 }
 
-func NewAnnotator() *Annotator {
-	return &Annotator{
-		singleAnnotations: make(map[string]CustomAnnotation),
-		kvAnnotations: make(map[string]CustomAnnotation),
+var defaultAnnotator = &Annotator{
+	name: "annotator",
+	annotations: NewRegistry(func(c CustomAnnotation) string {		
+		return c.Metadata().Tag
+	}),
+}
+
+func NewAnnotator(opts ...AnnotateOption) *Annotator {
+	annotator := defaultAnnotator
+	for _,opt := range opts {
+		opt(annotator)
 	}
-}
-
-func (a *Annotator) register(registered map[string]CustomAnnotation, cAnn CustomAnnotation) error {
-	if _, exists := registered[cAnn.Metadata().Tag]; exists {
-	return fmt.Errorf("error registering annotation: annoatation with tag '%s' already exists", cAnn.Metadata().Tag)
- }
- registered[cAnn.Metadata().Tag] = cAnn
- return nil
+	return annotator
 }
 
 func (a *Annotator) Register(cAnn CustomAnnotation) error {
-	if cAnn.Metadata().KeyValue {
-		return a.register(a.kvAnnotations, cAnn)
-	}
-	return a.register(a.singleAnnotations, cAnn)
+	return a.annotations.Register(cAnn)
 }
 
 func (a *Annotator) annotateField(field reflect.StructField) error {
-	if val, ok := field.Tag.Lookup("ca"); ok {
+	if val, ok := field.Tag.Lookup(a.name); ok {
 		fmt.Println(val)
 	}
 	return nil
